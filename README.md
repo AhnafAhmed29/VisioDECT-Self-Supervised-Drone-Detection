@@ -113,33 +113,33 @@ The dataset itself is **not redistributed through this repository**. Users shoul
 │
 ├── notebooks/
 │   ├── 00_data_preparation/
-│   │   └── 01_dataset_exploration_preprocessing.ipynb
+│   │   └── VisioDECTnotebook1-datasetexploration-preprocessing.ipynb
 │   │
 │   ├── 01_supervised_detection/
-│   │   ├── 01_yolov10_training_evaluation.ipynb
-│   │   ├── 02_yolov12_training_evaluation.ipynb
-│   │   ├── 03_yolov26_training_evaluation.ipynb
-│   │   └── 04_rf_detr_training_evaluation.ipynb
+│   │   ├── VisioDECTnotebook2-yolo-v10trainevaluate-erroranalysis.ipynb
+│   │   ├── VisioDECTnotebook3-yolov12trainevaluate-erroranalysis.ipynb
+│   │   ├── VisioDECTnotebook4-yolov26trainevaluate-erroranalysis.ipynb
+│   │   └── VisioDECTnotebook5-rf-detrtrainevaluate-erroranalysis.ipynb
 │   │
 │   ├── 02_self_supervised_learning/
 │   │   ├── simclr/
-│   │   │   ├── 01_pretraining.ipynb
-│   │   │   └── 02_downstream_detection.ipynb
+│   │   │   ├── VisioDECTnotebook1a-simclr-self-supervisedpretraining.ipynb
+│   │   │   └── VisioDECTnotebook1b-simclr-self-superviseddownstream.ipynb
 │   │   ├── byol/
-│   │   │   ├── 01_pretraining.ipynb
-│   │   │   └── 02_downstream_detection.ipynb
+│   │   │   ├── VisioDECTnotebook2a-byol-self-supervisedpretraining.ipynb
+│   │   │   └── VisioDECTnotebook2b-byol-self-superviseddownstream.ipynb
 │   │   ├── i_jepa/
-│   │   │   ├── 01_pretraining.ipynb
-│   │   │   └── 02_downstream_detection.ipynb
+│   │   │   ├── VisioDECTnotebook3a-i-jepa-self-supervisedpretraining.ipynb
+│   │   │   └── VisioDECTnotebook3b-i-jepa-self-superviseddownstream.ipynb
 │   │   └── dinov3/
-│   │       ├── 01_pretraining.ipynb
-│   │       └── 02_downstream_detection.ipynb
+│   │       ├── VisioDECTnotebook4a-dinov3-self-supervisedpretraining.ipynb
+│   │       └── VisioDECTnotebook4b-dinov3-self-superviseddownstream.ipynb
 │   │
 │   ├── 03_ablation/
-│   │   └── 01_label_efficiency_10_to_50_percent.ipynb
+│   │   └── VisioDECTnotebookbonus-labelefficiency-selfsupervised.ipynb
 │   │
 │   └── 04_tracking/
-│       └── 01_multi_object_tracking.ipynb
+│       └── VisioDECTnotebook5-downstreamtracking-self-supervised.ipynb
 │
 ├── results/
 │   ├── supervised/
