@@ -1,0 +1,40 @@
+# Core scientific stack
+numpy
+pandas
+matplotlib
+seaborn
+scipy
+scikit-learn
+Pillow
+tqdm
+PyYAML
+packaging
+
+# Computer vision / augmentation
+opencv-python-headless
+albumentations>=2.0.8
+
+# Deep learning
+torch
+torchvision
+
+# YOLO detection and tracking
+ultralytics>=8.4.120
+lap
+
+# RF-DETR training and evaluation
+rfdetr[train]
+supervision
+pycocotools
+torchmetrics
+faster-coco-eval
+
+# DINOv3 / SSL training
+lightly-train[ultralytics]>=0.16.2
+
+# SSL utilities used by the SimCLR, BYOL, I-JEPA, and DINOv3 notebooks
+ssl-detection-lab @ git+https://github.com/rifat963/ssl-detection-lab.git@main
+
+# Notebook support for local execution
+jupyterlab
+ipykernel
