@@ -142,7 +142,7 @@ The dataset itself is **not redistributed through this repository**. Users shoul
 │       └── VisioDECTnotebook5-downstreamtracking-self-supervised.ipynb
 │
 └── assets/
-│   └── figures/
+    └── figures/
 
 ```
 
