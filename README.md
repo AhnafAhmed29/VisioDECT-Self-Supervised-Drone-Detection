@@ -141,17 +141,9 @@ The dataset itself is **not redistributed through this repository**. Users shoul
 │   └── 04_tracking/
 │       └── VisioDECTnotebook5-downstreamtracking-self-supervised.ipynb
 │
-├── results/
-│   ├── supervised/
-│   ├── self_supervised/
-│   ├── ablation/
-│   └── tracking/
-│
-├── assets/
+└── assets/
 │   └── figures/
-│
-└── data/
-    └── README.md
+
 ```
 
 ---
@@ -403,9 +395,395 @@ Only the initialization strategy changes.
 
 ---
 
-## Installation
+## Installation and Running the Notebooks
 
-Clone the repository:
+The experiments in this repository were primarily developed and evaluated using **Kaggle Notebooks with GPU acceleration**. Kaggle is therefore the recommended environment for reproducing the experiments.
+
+The notebooks can also be executed locally using a Python virtual environment.
+
+---
+
+### Option 1 — Run on Kaggle (Recommended)
+
+#### 1. Download or Fork the Notebook
+
+Open the notebook you want to run from the `notebooks/` directory of this repository.
+
+Download the corresponding `.ipynb` file and upload it to Kaggle:
+
+1. Sign in to [Kaggle](https://www.kaggle.com/).
+2. Select **Create → New Notebook**.
+3. Use **File → Import Notebook** or upload the `.ipynb` file.
+4. Open the imported notebook.
+
+---
+
+#### 2. Enable GPU Acceleration
+
+The detection and self-supervised learning experiments are designed for GPU execution.
+
+In the Kaggle notebook:
+
+1. Open **Settings**.
+2. Find **Accelerator**.
+3. Select an available **GPU** accelerator.
+
+Several of the original experiments were executed on NVIDIA Tesla T4 GPUs. Some self-supervised pretraining experiments used multiple GPUs when available.
+
+CPU execution is possible for some preprocessing and analysis sections but is not recommended for model training.
+
+---
+
+#### 3. Enable Internet Access
+
+Some notebooks install packages directly from PyPI or GitHub.
+
+Enable:
+
+```text
+Settings → Internet → On
+```
+
+Internet access is required particularly for dependencies such as:
+
+```text
+ultralytics
+rfdetr
+lightly-train
+ssl-detection-lab
+```
+
+and for downloading model weights when they are not already supplied as Kaggle inputs.
+
+---
+
+#### 4. Add the VisioDECT Dataset
+
+All experiments use the **VisioDECT for Scenario-Based Multi-Drone Detection** dataset.
+
+Dataset:
+
+https://www.kaggle.com/datasets/simeonajakwe/visiodect-for-scenario-based-multi-drone-detection
+
+Inside the Kaggle notebook:
+
+1. Click **Add Input**.
+2. Search for:
+
+```text
+VisioDECT for Scenario-Based Multi-Drone Detection
+```
+
+3. Select the dataset by **simeonajakwe**.
+4. Click **Add**.
+
+Kaggle will mount the dataset under:
+
+```text
+/kaggle/input/
+```
+
+The exact subdirectory name can be inspected using:
+
+```python
+from pathlib import Path
+
+for path in Path("/kaggle/input").iterdir():
+    print(path)
+```
+
+The VisioDECT dataset itself is not included in this GitHub repository.
+
+---
+
+#### 5. Install Dependencies
+
+Most Kaggle notebooks already contain the package-installation commands required for their corresponding experiment.
+
+For example, the YOLO experiments install:
+
+```python
+%pip install -q -U ultralytics
+```
+
+The RF-DETR experiment requires:
+
+```python
+%pip install -q -U "rfdetr[train]" supervision pycocotools torchmetrics faster-coco-eval
+```
+
+The DINOv3 experiment additionally uses:
+
+```python
+%pip install -q -U "lightly-train[ultralytics]>=0.16.2"
+```
+
+The SimCLR, BYOL, I-JEPA, and DINOv3 SSL experiments use:
+
+```python
+%pip install -q --no-cache-dir --force-reinstall --no-deps \
+    "git+https://github.com/rifat963/ssl-detection-lab.git@main"
+```
+
+The tracking notebook also requires:
+
+```python
+%pip install -q -U ultralytics lap
+```
+
+For local execution, all primary dependencies are collected in the repository-level:
+
+```text
+requirements.txt
+```
+
+---
+
+## Recommended Kaggle Execution Order
+
+The notebooks are designed as a multi-stage experimental pipeline. Run them in the following order.
+
+### Stage 1 — Dataset Preparation
+
+Start with:
+
+```text
+notebooks/
+└── 00_data_preparation/
+    └── VisioDECTnotebook1-datasetexploration-preprocessing.ipynb
+```
+
+This notebook performs:
+
+- dataset exploration
+- annotation validation
+- missing-label recovery
+- duplicate detection
+- leakage-safe splitting
+- class remapping
+- YOLO-format dataset construction
+
+After successfully running the notebook, use:
+
+```text
+Save Version
+```
+
+in Kaggle so that the processed outputs can be reused by later notebooks.
+
+---
+
+### Stage 2 — Fully Supervised Detection
+
+The supervised experiments can then be executed from:
+
+```text
+notebooks/
+└── 01_supervised_detection/
+    ├── VisioDECTnotebook2-yolo-v10trainevaluate-erroranalysis.ipynb
+    ├── VisioDECTnotebook3-yolov12trainevaluate-erroranalysis.ipynb
+    ├── VisioDECTnotebook4-yolov26trainevaluate-erroranalysis.ipynb
+    └── VisioDECTnotebook5-rf-detrtrainevaluate-erroranalysis.ipynb
+```
+
+For each notebook:
+
+1. Upload the notebook to Kaggle.
+2. Add the original VisioDECT dataset or the required processed dataset output.
+3. Enable GPU acceleration.
+4. Enable Internet access.
+5. Run all cells from top to bottom.
+
+These notebooks train and evaluate the supervised reference models independently.
+
+---
+
+### Stage 3 — Self-Supervised Pretraining
+
+Each SSL method has a pretraining notebook followed by a downstream detection notebook.
+
+#### SimCLR
+
+Run:
+
+```text
+02_self_supervised_learning/
+└── simclr/
+    ├── VisioDECTnotebook1a-simclr-self-supervisedpretraining.ipynb
+    └── VisioDECTnotebook1b-simclr-self-superviseddownstream.ipynb
+```
+
+Run `01_pretraining.ipynb` first.
+
+After training completes:
+
+```text
+Save Version
+```
+
+in Kaggle.
+
+Then open `02_downstream_detection.ipynb` and add the saved output from the SimCLR pretraining notebook as an input.
+
+---
+
+#### BYOL
+
+Run:
+
+```text
+02_self_supervised_learning/
+└── byol/
+    ├── VisioDECTnotebook2a-byol-self-supervisedpretraining.ipynb
+    └── VisioDECTnotebook2b-byol-self-superviseddownstream.ipynb
+```
+
+The workflow is:
+
+```text
+BYOL Pretraining
+        ↓
+Save Kaggle Version
+        ↓
+Add Pretraining Output as Input
+        ↓
+BYOL Downstream Detection
+```
+
+---
+
+#### I-JEPA
+
+Run:
+
+```text
+02_self_supervised_learning/
+└── i_jepa/
+    ├── VisioDECTnotebook3a-i-jepa-self-supervisedpretraining.ipynb
+    └── VisioDECTnotebook3b-i-jepa-self-superviseddownstream.ipynb
+```
+
+Again, save the pretraining notebook output before running downstream detection.
+
+---
+
+#### DINOv3
+
+Run:
+
+```text
+02_self_supervised_learning/
+└── dinov3/
+    ├── VisioDECTnotebook4a-dinov3-self-supervisedpretraining.ipynb
+    └── VisioDECTnotebook4b-dinov3-self-superviseddownstream.ipynb
+```
+
+The DINOv3 pretraining notebook requires the corresponding DINOv3 teacher weights in addition to the VisioDECT data.
+
+After the domain-adaptive representation-learning stage finishes, save the Kaggle notebook version and attach its generated checkpoint/output to the downstream notebook.
+
+The dependency relationship is:
+
+```text
+VisioDECT
+    │
+    ▼
+DINOv3 SSL Pretraining
+    │
+    │  learned backbone/checkpoint
+    ▼
+DINOv3 Downstream Detection
+    │
+    ▼
+Evaluation
+```
+
+---
+
+### Stage 4 — Label-Efficiency Ablation
+
+Run:
+
+```text
+notebooks/
+└── 03_ablation/
+    └── VisioDECTnotebookbonus-labelefficiency-selfsupervised.ipynb
+```
+
+This experiment uses nested labeled subsets ranging from 10% to 50% and compares DINOv3-derived initialization against COCO-pretrained initialization.
+
+The required preprocessing and DINOv3 checkpoint outputs should therefore be added to the Kaggle notebook before execution.
+
+---
+
+### Stage 5 — Multi-Object Tracking
+
+Finally, run:
+
+```text
+notebooks/
+└── 04_tracking/
+    └── VisioDECTnotebook5-downstreamtracking-self-supervised.ipynb
+```
+
+The tracking experiment requires:
+
+- the trained downstream detector checkpoint
+- the evaluation video
+- Ultralytics
+- `lap`
+
+The principal workflow is:
+
+```text
+DINOv3 Pretraining
+        ↓
+Downstream Detector Training
+        ↓
+Detector Checkpoint
+        ↓
+Multi-Object Tracking
+        ↓
+ByteTrack / BoT-SORT Evaluation
+```
+
+Add the required saved Kaggle notebook output and tracking video as notebook inputs before execution.
+
+---
+
+## Kaggle Input and Output Workflow
+
+Kaggle notebooks cannot directly access the temporary `/kaggle/working/` directory of another notebook.
+
+To reuse a model checkpoint or processed dataset:
+
+1. Run the producer notebook.
+2. Ensure the required artifact is written to:
+
+```text
+/kaggle/working/
+```
+
+3. Click **Save Version**.
+4. Wait for that Kaggle version to complete successfully.
+5. Open the dependent notebook.
+6. Select **Add Input**.
+7. Choose **Your Work / Notebook Output Files**.
+8. Add the saved notebook output.
+
+The artifact then becomes available under a path similar to:
+
+```text
+/kaggle/input/notebooks/<username>/<notebook-name>/
+```
+
+This mechanism is used throughout the SSL pretraining → downstream detection pipeline.
+
+---
+
+## Local Installation
+
+For users who want to run the project locally, clone the repository:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/VisioDECT-SSL-Drone-Detection.git
@@ -414,111 +792,71 @@ cd VisioDECT-SSL-Drone-Detection
 
 Create a virtual environment:
 
+### Windows
+
 ```bash
 python -m venv .venv
-```
-
-Activate it on Windows:
-
-```bash
 .venv\Scripts\activate
 ```
 
-On Linux/macOS:
+### Linux/macOS
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install the required packages:
+Upgrade pip:
+
+```bash
+python -m pip install --upgrade pip
+```
+
+Install the project dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Some experiments use additional packages installed directly inside their corresponding notebooks because particular model families require different environments.
+Start JupyterLab:
+
+```bash
+jupyter lab
+```
+
+Then navigate to the appropriate notebook under:
+
+```text
+notebooks/
+```
+
+### Local GPU Note
+
+PyTorch/CUDA compatibility depends on the installed NVIDIA driver, CUDA environment, operating system, and GPU.
+
+For GPU-based local execution, users may need to install the appropriate PyTorch build for their system before installing the remaining dependencies.
+
+The Kaggle environment is recommended when reproducing the GPU-intensive training experiments because it avoids most local CUDA configuration issues.
 
 ---
 
-## Main Dependencies
+## Important Reproducibility Note
 
-The project uses tools including:
-
-- Python
-- PyTorch
-- Torchvision
-- Ultralytics
-- RF-DETR
-- Albumentations
-- OpenCV
-- NumPy
-- Pandas
-- Matplotlib
-- scikit-learn
-- Pillow
-- tqdm
-- LightlyTrain
-- pycocotools
-- Supervision
-
-Exact environment requirements may vary between the supervised, SSL, and RF-DETR experiments.
-
----
-
-## Running the Experiments
-
-The notebooks are intended to be executed in numerical order.
-
-### Stage 1 — Prepare the Dataset
-
-Run:
+The notebooks were designed around the Kaggle filesystem:
 
 ```text
-notebooks/00_data_preparation/
-    01_dataset_exploration_preprocessing.ipynb
+/kaggle/input/
 ```
 
-This produces the cleaned train/validation/test partitions used by the detector experiments.
-
-### Stage 2 — Supervised Detection
-
-Run notebooks in:
+for read-only datasets and notebook outputs, and:
 
 ```text
-notebooks/01_supervised_detection/
+/kaggle/working/
 ```
 
-### Stage 3 — Self-Supervised Learning
+for generated artifacts.
 
-For each SSL method, execute the pretraining notebook before the corresponding downstream notebook.
-
-Example:
-
-```text
-02_self_supervised_learning/dinov3/
-├── 01_pretraining.ipynb
-└── 02_downstream_detection.ipynb
-```
-
-### Stage 4 — Label-Efficiency Study
-
-Run:
-
-```text
-notebooks/03_ablation/
-    01_label_efficiency_10_to_50_percent.ipynb
-```
-
-### Stage 5 — Multi-Object Tracking
-
-Run:
-
-```text
-notebooks/04_tracking/
-    01_multi_object_tracking.ipynb
-```
-
----
+When running locally, these paths must be changed to the corresponding local dataset and output directories.
 
 ## Kaggle
 
